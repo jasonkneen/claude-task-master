@@ -10,24 +10,18 @@ import { registerSetTaskStatusTool } from "./setTaskStatus.js";
 import { registerExpandTaskTool } from "./expandTask.js";
 import { registerNextTaskTool } from "./nextTask.js";
 import { registerAddTaskTool } from "./addTask.js";
-import { getWebInterfaceUrlTool, setServerInstanceAccessor } from "./getWebInterfaceUrl.js"; // Added
 
 /**
  * Register all Task Master tools with the MCP server
- * @param {Object} taskMasterServer - The main TaskMasterMCPServer instance
+ * @param {Object} server - FastMCP server instance
  */
-export function registerTaskMasterTools(taskMasterServer) {
-  const server = taskMasterServer.server; // Get the FastMCP instance
-
-  // Provide the getWebInterfaceUrl tool with a way to access the main server instance
-  setServerInstanceAccessor(() => taskMasterServer);
+export function registerTaskMasterTools(server) {
   registerListTasksTool(server);
   registerShowTaskTool(server);
   registerSetTaskStatusTool(server);
   registerExpandTaskTool(server);
   registerNextTaskTool(server);
   registerAddTaskTool(server);
-  server.addTool(getWebInterfaceUrlTool); // Added: Register the new tool
 }
 
 export default {

@@ -78,38 +78,44 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 export async function getTasks(status?: string): Promise<TaskSummary[]> {
-  const params = new URLSearchParams();
-  if (status) {
-    params.append('status', status);
-  }
-  
+  console.log('Attempting to fetch tasks directly from tasks.json');
   try {
-    const response = await fetch(`${API_BASE_URL}/tasks?${params.toString()}`);
-    console.debug('Fetch /api/tasks status:', response.status);
+    // Fetch tasks.json directly relative to the public directory
+    // Assuming tasks.json is copied or linked to the public folder during build/dev
+    const response = await fetch('/tasks.json');
     
-    return await handleResponse<TaskSummary[]>(response);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}, Failed to fetch /tasks.json`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.tasks || !Array.isArray(data.tasks)) {
+      throw new Error('Invalid tasks.json format - tasks array not found');
+    }
+    
+    console.log(`Successfully loaded ${data.tasks.length} tasks from tasks.json`);
+    
+    // Convert tasks to the required format for the dashboard
+    let tasks: TaskSummary[] = data.tasks.map((task: any) => ({
+      id: String(task.id),
+      title: task.title,
+      status: task.status,
+      priority: task.priority,
+      dependencies: task.dependencies ? task.dependencies.map(String) : []
+    }));
+    
+    // Apply status filter if provided
+    if (status) {
+      tasks = tasks.filter(task => task.status === status);
+    }
+    
+    return tasks;
+    
   } catch (error) {
-    console.error('Error fetching tasks:', error);
-    
-    // For development/fallback, return tasks from tasks.json
-    // In a production environment, you might want to rethrow the error
-    console.warn('Falling back to placeholder task data');
-    
-    // Return placeholder data
-    return [
-      { id: '1', title: 'Install backend deps', status: 'done', priority: 'high', dependencies: [] },
-      { id: '2', title: 'Implement port finding', status: 'done', priority: 'high', dependencies: ['1'] },
-      { id: '3', title: 'Create API endpoints', status: 'in-progress', priority: 'high', dependencies: ['2'] },
-      { id: '4', title: 'Implement GET /api/tasks', status: 'done', priority: 'high', dependencies: ['2'] },
-      { id: '5', title: 'Implement POST /api/tasks', status: 'in-progress', priority: 'medium', dependencies: ['2'] },
-      { id: '6', title: 'Implement DELETE /api/tasks', status: 'pending', priority: 'low', dependencies: ['2'] },
-      { id: '7', title: 'Create UI components', status: 'done', priority: 'high', dependencies: [] },
-      { id: '8', title: 'Create Task List component', status: 'done', priority: 'medium', dependencies: ['7'] },
-      { id: '9', title: 'Create Task Detail component', status: 'done', priority: 'medium', dependencies: ['7'] },
-      { id: '10', title: 'Implement task filtering', status: 'pending', priority: 'low', dependencies: ['8'] },
-      { id: '11', title: 'Add task sorting', status: 'pending', priority: 'low', dependencies: ['8'] },
-      { id: '12', title: 'Implement task search', status: 'pending', priority: 'medium', dependencies: ['8'] },
-    ];
+    console.error('Error fetching or parsing tasks.json:', error);
+    // Return empty array if fetching/parsing fails
+    return [];
   }
 }
 
