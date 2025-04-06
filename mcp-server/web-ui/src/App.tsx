@@ -2,14 +2,21 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faNetworkWired, faBolt, faUserPlus, faTasks,
-  faProjectDiagram, faChartLine, faBell,
+  faProjectDiagram, faBell,
   faCheckCircle, faFilter, faSort, faSearch
+  // Removed faGripLines, faExpand
 } from '@fortawesome/free-solid-svg-icons';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
 
 // Import API services
 import { getTasks, TaskSummary } from '@/services/api';
+
+// Import custom components
+// Removed ResizablePanel imports
+
+// Import custom styles
+import '@/styles/dark-theme.css';
 
 // Register ChartJS components
 ChartJS.register(
@@ -41,24 +48,24 @@ function App() {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Fetch tasks from the API
         const fetchedTasks = await getTasks();
         console.log("Fetched tasks:", fetchedTasks);
-        
+
         // Calculate task statistics
         const total = fetchedTasks.length;
         const completed = fetchedTasks.filter(task => task.status === 'done').length;
         const inProgress = fetchedTasks.filter(task => task.status === 'in-progress').length;
         const pending = fetchedTasks.filter(task => task.status === 'pending').length;
-        
+
         setTaskStats({
           total,
           completed,
           inProgress,
           pending
         });
-        
+
         setTasks(fetchedTasks);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -72,7 +79,7 @@ function App() {
   }, []);
 
   // Filter tasks based on status
-  const filteredTasks = statusFilter 
+  const filteredTasks = statusFilter
     ? tasks.filter(task => task.status === statusFilter)
     : tasks;
 
@@ -82,9 +89,9 @@ function App() {
     datasets: [{
       label: 'Completed Tasks',
       data: [
-        Math.round(taskStats.completed * 0.25), 
-        Math.round(taskStats.completed * 0.5), 
-        Math.round(taskStats.completed * 0.75), 
+        Math.round(taskStats.completed * 0.25),
+        Math.round(taskStats.completed * 0.5),
+        Math.round(taskStats.completed * 0.75),
         taskStats.completed
       ],
       borderColor: '#00ff00',
@@ -95,7 +102,7 @@ function App() {
       pointRadius: 0
     }]
   };
-  
+
   // Chart data for task types
   const taskTypeData = {
     labels: ['High', 'Medium', 'Low'],
@@ -118,7 +125,7 @@ function App() {
       borderWidth: 1
     }]
   };
-  
+
   // Chart options
   const chartOptions = {
     responsive: true,
@@ -139,7 +146,7 @@ function App() {
       }
     }
   };
-  
+
   const doughnutOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -153,9 +160,9 @@ function App() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 text-gray-200">
+    <div className="container mx-auto px-0 py-2 text-gray-200 brushed-steel">
       {/* Header */}
-      <header className="flex justify-between items-center border-b border-green-600 pb-4 mb-8">
+      <header className="flex justify-between items-center border-b border-green-600 pb-2 mb-4">
         <div className="flex items-center">
           <div className="w-4 h-12 bg-green-500 mr-3"></div>
           <div>
@@ -182,203 +189,159 @@ function App() {
       </header>
 
       {/* Main Dashboard */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Left sidebar */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-4">
           {/* System Status */}
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center border border-green-500">
-                <FontAwesomeIcon icon={faNetworkWired} className="text-green-500" />
-              </div>
-              <div className="ml-3">
-                <h3 className="font-bold text-green-400">TASK SYSTEM</h3>
-                <p className="text-xs text-gray-500">TASK MANAGEMENT COORDINATOR</p>
+          <div className="panel">
+            <div className="panel-header">
+              <div className="flex items-center">
+                <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center border border-green-500 mr-2">
+                  <FontAwesomeIcon icon={faNetworkWired} className="text-green-500" />
+                </div>
+                {/* Removed GripLines icon */}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-gray-800 rounded p-2">
-                <div className="text-gray-500">TOTAL TASKS</div>
-                <div className="text-green-400">{taskStats.total}</div>
-              </div>
-              <div className="bg-gray-800 rounded p-2">
-                <div className="text-gray-500">COMPLETED</div>
-                <div className="text-green-400">{taskStats.completed}</div>
-              </div>
-              <div className="bg-gray-800 rounded p-2">
-                <div className="text-gray-500">IN PROGRESS</div>
-                <div className="text-green-400">{taskStats.inProgress}</div>
-              </div>
-              <div className="bg-gray-800 rounded p-2">
-                <div className="text-gray-500">PENDING</div>
-                <div className="text-green-400">{taskStats.pending}</div>
+            <div className="panel-content">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-gray-800 rounded p-2">
+                  <div className="text-gray-500">TOTAL TASKS</div>
+                  <div className="text-green-400">{taskStats.total}</div>
+                </div>
+                <div className="bg-gray-800 rounded p-2">
+                  <div className="text-gray-500">COMPLETED</div>
+                  <div className="text-green-400">{taskStats.completed}</div>
+                </div>
+                <div className="bg-gray-800 rounded p-2">
+                  <div className="text-gray-500">IN PROGRESS</div>
+                  <div className="text-green-400">{taskStats.inProgress}</div>
+                </div>
+                <div className="bg-gray-800 rounded p-2">
+                  <div className="text-gray-500">PENDING</div>
+                  <div className="text-green-400">{taskStats.pending}</div>
+                </div>
               </div>
             </div>
           </div>
-
           {/* Quick Actions */}
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-            <h3 className="font-bold text-green-500 mb-3 flex items-center">
-              <FontAwesomeIcon icon={faBolt} className="mr-2" /> QUICK ACTIONS
-            </h3>
-            <div className="space-y-2">
-              <button 
-                className="w-full bg-gray-800 hover:bg-green-900 text-green-400 text-left text-sm py-2 px-3 rounded flex items-center"
-              >
-                <FontAwesomeIcon icon={faUserPlus} className="mr-2" /> CREATE TASK
-              </button>
-              <button 
-                className="w-full bg-gray-800 hover:bg-green-900 text-green-400 text-left text-sm py-2 px-3 rounded flex items-center"
-              >
-                <FontAwesomeIcon icon={faFilter} className="mr-2" /> FILTER TASKS
-              </button>
-              <button 
-                className="w-full bg-gray-800 hover:bg-green-900 text-green-400 text-left text-sm py-2 px-3 rounded flex items-center"
-              >
-                <FontAwesomeIcon icon={faSort} className="mr-2" /> SORT TASKS
-              </button>
-              <button 
-                className="w-full bg-gray-800 hover:bg-green-900 text-green-400 text-left text-sm py-2 px-3 rounded flex items-center"
-              >
-                <FontAwesomeIcon icon={faSearch} className="mr-2" /> SEARCH TASKS
-              </button>
+          <div className="panel">
+            <div className="panel-header">
+              <div className="flex items-center">
+                <FontAwesomeIcon icon={faBolt} className="text-green-500 mr-2" />
+                <span className="font-bold text-green-400">QUICK ACTIONS</span>
+                {/* Removed GripLines icon */}
+              </div>
+            </div>
+            <div className="panel-content">
+              <div className="space-y-2">
+                <button className="flat-button w-full">
+                  <FontAwesomeIcon icon={faUserPlus} className="text-green-400" />
+                  <span>CREATE TASK</span>
+                </button>
+                <button className="flat-button w-full">
+                  <FontAwesomeIcon icon={faFilter} className="text-green-400" />
+                  <span>FILTER TASKS</span>
+                </button>
+                <button className="flat-button w-full">
+                  <FontAwesomeIcon icon={faSort} className="text-green-400" />
+                  <span>SORT TASKS</span>
+                </button>
+                <button className="flat-button w-full">
+                  <FontAwesomeIcon icon={faSearch} className="text-green-400" />
+                  <span>SEARCH TASKS</span>
+                </button>
+              </div>
             </div>
           </div>
-
           {/* Task Filters */}
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-            <h3 className="font-bold text-green-500 mb-3 flex items-center">
-              <FontAwesomeIcon icon={faFilter} className="mr-2" /> TASK FILTERS
-            </h3>
-            <div className="space-y-2">
-              <button 
-                className={`w-full ${statusFilter === null ? 'bg-green-900' : 'bg-gray-800 hover:bg-green-900'} text-green-400 text-left text-sm py-2 px-3 rounded flex items-center`}
-                onClick={() => setStatusFilter(null)}
-              >
-                <FontAwesomeIcon icon={faTasks} className="mr-2" /> ALL TASKS
-              </button>
-              <button 
-                className={`w-full ${statusFilter === 'done' ? 'bg-green-900' : 'bg-gray-800 hover:bg-green-900'} text-green-400 text-left text-sm py-2 px-3 rounded flex items-center`}
-                onClick={() => setStatusFilter('done')}
-              >
-                <FontAwesomeIcon icon={faCheckCircle} className="mr-2" /> COMPLETED
-              </button>
-              <button 
-                className={`w-full ${statusFilter === 'in-progress' ? 'bg-green-900' : 'bg-gray-800 hover:bg-green-900'} text-green-400 text-left text-sm py-2 px-3 rounded flex items-center`}
-                onClick={() => setStatusFilter('in-progress')}
-              >
-                <FontAwesomeIcon icon={faProjectDiagram} className="mr-2" /> IN PROGRESS
-              </button>
-              <button 
-                className={`w-full ${statusFilter === 'pending' ? 'bg-green-900' : 'bg-gray-800 hover:bg-green-900'} text-green-400 text-left text-sm py-2 px-3 rounded flex items-center`}
-                onClick={() => setStatusFilter('pending')}
-              >
-                <FontAwesomeIcon icon={faBell} className="mr-2" /> PENDING
-              </button>
+          <div className="panel">
+            <div className="panel-header">
+              <div className="flex items-center">
+                <FontAwesomeIcon icon={faFilter} className="text-green-500 mr-2" />
+                <span className="font-bold text-green-400">TASK FILTERS</span>
+                {/* Removed GripLines icon */}
+              </div>
+            </div>
+            <div className="panel-content">
+              <div className="space-y-2">
+                <button
+                  className={`flat-button w-full ${statusFilter === null ? 'accent-bg' : ''}`}
+                  onClick={() => setStatusFilter(null)}
+                >
+                  <FontAwesomeIcon icon={faTasks} /> ALL TASKS
+                </button>
+                <button
+                  className={`flat-button w-full ${statusFilter === 'done' ? 'accent-bg' : ''}`}
+                  onClick={() => setStatusFilter('done')}
+                >
+                  <FontAwesomeIcon icon={faCheckCircle} /> COMPLETED
+                </button>
+                <button
+                  className={`flat-button w-full ${statusFilter === 'in-progress' ? 'accent-bg' : ''}`}
+                  onClick={() => setStatusFilter('in-progress')}
+                >
+                  <FontAwesomeIcon icon={faProjectDiagram} /> IN PROGRESS
+                </button>
+                <button
+                  className={`flat-button w-full ${statusFilter === 'pending' ? 'accent-bg' : ''}`}
+                  onClick={() => setStatusFilter('pending')}
+                >
+                  <FontAwesomeIcon icon={faBell} /> PENDING
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Task Statistics */}
-          <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
-            <div className="border-b border-gray-800 p-4 bg-gray-950 flex justify-between items-center">
-              <h2 className="font-bold text-green-400 flex items-center">
-                <FontAwesomeIcon icon={faChartLine} className="mr-2" /> TASK STATISTICS
-              </h2>
-              <div className="text-xs flex items-center">
-                <div className="w-2 h-2 rounded-full bg-green-500 mr-1 pulsing-border"></div>
-                <span className="text-green-400">REALTIME MONITORING</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-              <div className="bg-gray-950 p-3 rounded border border-gray-800">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-sm font-bold text-green-400">TASK PROGRESS</h3>
-                  <span className="text-xs bg-green-900 text-green-300 px-2 py-0.5 rounded-full">
-                    {Math.round((taskStats.completed / (taskStats.total || 1)) * 100)}%
-                  </span>
-                </div>
-                <div className="h-40">
-                  <Line data={taskProgressData} options={chartOptions} />
-                </div>
-              </div>
-              <div className="bg-gray-950 p-3 rounded border border-gray-800">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-sm font-bold text-green-400">TASK PRIORITIES</h3>
-                  <span className="text-xs bg-gray-800 text-gray-300 px-2 py-0.5 rounded-full">DISTRIBUTION</span>
-                </div>
-                <div className="h-40">
-                  <Doughnut data={taskTypeData} options={doughnutOptions} />
-                </div>
-              </div>
-            </div>
-          </div>
-
+        <div className="lg:col-span-3 flex flex-col gap-4">
           {/* Task List */}
-          <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
-            <div className="border-b border-gray-800 p-4 bg-gray-950 flex justify-between items-center">
-              <h2 className="font-bold text-green-400 flex items-center">
-                <FontAwesomeIcon icon={faTasks} className="mr-2" /> TASK LIST
-              </h2>
-              <div className="text-xs">
-                <span className="text-yellow-400">SHOWING: </span>
-                <span className="text-green-400">{filteredTasks.length} TASKS</span>
-              </div>
-            </div>
-            <div className="p-4">
+          <div className="panel flex flex-col flex-grow">
+            
+            <div className="panel-content flex flex-col flex-grow overflow-y-auto">
               {loading ? (
-                <div className="text-center py-4">
+                <div className="flex items-center justify-center flex-grow">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
-                  <p className="mt-2 text-gray-400">Loading tasks...</p>
+                  <p className="ml-2 text-gray-400">Loading tasks...</p>
                 </div>
               ) : error ? (
-                <div className="text-center py-4 text-red-500">
+                <div className="flex items-center justify-center flex-grow text-red-500">
                   <p>Error: {error}</p>
                 </div>
               ) : filteredTasks.length === 0 ? (
-                <div className="text-center py-4 text-gray-400">
+                <div className="flex items-center justify-center flex-grow text-gray-400">
                   <p>No tasks found.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-800 text-gray-400 text-xs">
+                <div className="overflow-x-auto overflow-y-auto flex-grow h-0">
+                  <table className="data-table">
+                    <thead>
                       <tr>
-                        <th className="py-2 px-4 text-left">ID</th>
-                        <th className="py-2 px-4 text-left">TITLE</th>
-                        <th className="py-2 px-4 text-left">STATUS</th>
-                        <th className="py-2 px-4 text-left">PRIORITY</th>
-                        <th className="py-2 px-4 text-left">DEPENDENCIES</th>
+                        <th>ID</th>
+                        <th>TITLE</th>
+                        <th>STATUS</th>
+                        <th>PRIORITY</th>
+                        <th>DEPENDENCIES</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredTasks.map((task) => (
-                        <tr key={task.id} className="border-t border-gray-800 hover:bg-gray-800">
-                          <td className="py-3 px-4 text-gray-300">{task.id}</td>
-                          <td className="py-3 px-4 text-gray-300">{task.title}</td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              task.status === 'done' ? 'bg-green-900 text-green-300' : 
-                              task.status === 'in-progress' ? 'bg-blue-900 text-blue-300' : 
-                              'bg-yellow-900 text-yellow-300'
-                            }`}>
+                        <tr key={task.id}>
+                          <td>{task.id}</td>
+                          <td>{task.title}</td>
+                          <td>
+                            <span className={`status-${task.status}`}>
                               {task.status.toUpperCase()}
                             </span>
                           </td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              task.priority === 'high' ? 'bg-red-900 text-red-300' : 
-                              task.priority === 'medium' ? 'bg-orange-900 text-orange-300' : 
-                              'bg-gray-700 text-gray-300'
-                            }`}>
+                          <td>
+                            <span className={`priority-${task.priority}`}>
                               {task.priority.toUpperCase()}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-gray-300">
-                            {Array.isArray(task.dependencies) && task.dependencies.length > 0 
-                              ? task.dependencies.join(', ') 
+                          <td>
+                            {Array.isArray(task.dependencies) && task.dependencies.length > 0
+                              ? task.dependencies.join(', ')
                               : 'None'}
                           </td>
                         </tr>
@@ -390,7 +353,7 @@ function App() {
             </div>
           </div>
         </div>
-      </div>
+      </div> {/* Closing main grid div */}
 
       {/* Footer */}
       <footer className="mt-8 border-t border-gray-800 pt-4 text-xs text-gray-600 flex justify-between items-center">
@@ -401,7 +364,7 @@ function App() {
           <p>STATUS: <span className="text-green-500">OPERATIONAL</span></p>
         </div>
       </footer>
-    </div>
+    </div> // Closing container div
   );
 }
 
