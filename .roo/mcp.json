@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "task-master": {
+      "command": "npm",
+      "args":[       
+        "run" ,
+        "start-mcp"
+      ],
+      "disabled": false,
+      "alwaysAllow": [
+        "nextTask",
+        "listTasks",
+        "setTaskStatus",
+        "showTask",
+        "getWebInterfaceUrl",
+        "addTask",
+        "expandTask"
+      ],
+      "resources": [
+        
+      ]
+    }
+  }
+}
